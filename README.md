@@ -1,16 +1,9 @@
-# dayz_configurator_gui_tool
+# DayZ configurator GUI Tool
 
-A new Flutter project.
+A tool to help configuring some aspects of the dedicated server properties.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+-------------------------------
+# Missing features (ideally I'll implement it in the future)
+* Configure projects and switch between them
+  * Project means specify the folder, mission and the "profiles" folder name
+* Implement isReadyToLeave to ask before changing tab (TODO's on the code)
