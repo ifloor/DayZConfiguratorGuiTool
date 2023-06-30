@@ -56,4 +56,9 @@ class ProfilesMarketItem {
 
     return parsedItems;
   }
+
+  @override
+  String toString() {
+    return 'ProfilesMarketItem{ClassName: $ClassName, MaxPriceThreshold: $MaxPriceThreshold, MinPriceThreshold: $MinPriceThreshold, SellPricePercent: $SellPricePercent, MaxStockThreshold: $MaxStockThreshold, MinStockThreshold: $MinStockThreshold, QuantityPercent: $QuantityPercent, SpawnAttachments: $SpawnAttachments, Variants: $Variants}';
+  }
 }

@@ -22,7 +22,7 @@ class MarketCategoriesLoader {
 
         var jsonDecoded = jsonDecode(fileContent);
         var market = ProfilesMarket.fromJson(jsonDecoded);
-        market.diskFilename = file.path.split("/").last ?? "";
+        market.diskFilename =  file.path.split("\\").last.split("/").last ?? "";
 
         parsedMarkets.add(market);
 

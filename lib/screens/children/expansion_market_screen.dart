@@ -1,7 +1,7 @@
 import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:dayz_configurator_gui_tool/components/menu/menu_children_interfaces.dart';
 import 'package:dayz_configurator_gui_tool/dataholders/expansion_market_data_holder.dart';
-import 'package:dayz_configurator_gui_tool/screens/children/markets/MarketCategoriesScreen.dart';
+import 'package:dayz_configurator_gui_tool/screens/children/markets/market_categories_screen.dart';
 import 'package:flutter/material.dart';
 
 class ExpansionMarketScreen extends StatefulWidget implements ChildrenMenuWidget {

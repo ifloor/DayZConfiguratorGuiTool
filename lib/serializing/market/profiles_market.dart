@@ -39,4 +39,9 @@ class ProfilesMarket {
     'InitStockPercent': InitStockPercent,
     'Items': Items,
   };
+
+  @override
+  String toString() {
+    return 'ProfilesMarket{m_Version: $m_Version, DisplayName: $DisplayName, Icon: $Icon, Color: $Color, IsExchange: $IsExchange, InitStockPercent: $InitStockPercent, Items: $Items, diskFilename: $diskFilename}';
+  }
 }
