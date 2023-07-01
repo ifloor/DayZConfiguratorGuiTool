@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dayz_configurator_gui_tool/serializing/market/profiles_market.dart';
+import 'package:dayz_configurator_gui_tool/serialization/models/market/profiles_market.dart';
 import 'package:dayz_configurator_gui_tool/utils/folder_selection.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -44,7 +44,7 @@ class MarketCategoriesLoader {
     _waitingPromises.clear();
   }
   
-  Future<List<ProfilesMarket>> promiseWhenFinished() {
+  Future<List<ProfilesMarket>> promiseWhenFinishedLoading() {
     if (loadedMarkets != null) {
       return Future.value(loadedMarkets!);
     }
@@ -53,6 +53,36 @@ class MarketCategoriesLoader {
     _waitingPromises.add(completer);
 
     return completer.future;
+  }
+
+  Future<void> writeChangesToDisk() {
+    if (loadedMarkets == null) {
+      debugPrint("Impossible to save because markets are null");
+      return Future(() => null);
+    }
+
+    var folderDirectory = _folderDirectoryPath();
+
+    final futureCompleter = Completer();
+
+    const jsonEncoder = JsonEncoder.withIndent("    ");
+    var finishedWrites = 0;
+    for (final profileMarket in loadedMarkets!) {
+      final jsonString = jsonEncoder.convert(profileMarket);
+      final targetFilePath = "$folderDirectory/${profileMarket.diskFilename}";
+
+      var file = File(targetFilePath);
+      file.writeAsString(jsonString).then((_) {
+        debugPrint("Finished writing $targetFilePath");
+        finishedWrites++;
+
+        if (finishedWrites == loadedMarkets!.length) {
+          futureCompleter.complete(null);
+        }
+      });
+    }
+
+    return futureCompleter.future;
   }
 
   String _folderDirectoryPath() {

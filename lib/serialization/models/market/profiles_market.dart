@@ -1,4 +1,5 @@
-import 'package:dayz_configurator_gui_tool/serializing/market/profiles_market_item.dart';
+
+import 'profiles_market_item.dart';
 
 class ProfilesMarket {
   int m_Version;

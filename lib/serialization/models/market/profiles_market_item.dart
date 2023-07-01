@@ -8,7 +8,7 @@ class ProfilesMarketItem {
   double SellPricePercent;
   int MaxStockThreshold;
   int MinStockThreshold;
-  double QuantityPercent;
+  int QuantityPercent;
   List<String> SpawnAttachments;
   List<String> Variants;
 
@@ -31,7 +31,7 @@ class ProfilesMarketItem {
         SellPricePercent = json['SellPricePercent'],
         MaxStockThreshold = json['MaxStockThreshold'],
         MinStockThreshold = json['MinStockThreshold'],
-        QuantityPercent = double.parse((json['QuantityPercent']).toString()),
+        QuantityPercent = int.parse((json['QuantityPercent']).toString()),
         SpawnAttachments = DeserializationUtils.toStringList(json['SpawnAttachments']),
         Variants = DeserializationUtils.toStringList(json['Variants']);
 

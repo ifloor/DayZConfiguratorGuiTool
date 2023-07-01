@@ -1,3 +1,4 @@
+import 'package:dayz_configurator_gui_tool/defines/style_colors.dart';
 import 'package:dayz_configurator_gui_tool/screens/root_page.dart';
 import 'package:dayz_configurator_gui_tool/utils/shared_prefferences_utils.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "DayZ configurator GUI tool",
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: StyleColors.primaryText),
         useMaterial3: true,
       ),
       home: const RootPage(),
