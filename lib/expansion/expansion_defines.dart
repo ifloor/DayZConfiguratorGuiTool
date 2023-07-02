@@ -1,4 +1,5 @@
 class ExpansionDefines {
+  // From https://github.com/salutesh/DayZ-Expansion-Scripts/wiki/%5BServer-Hosting%5D-List-of-default-icon-names
   static final List<String> availableIconNames = [
     "Airdrop",
     "Animal Skull",

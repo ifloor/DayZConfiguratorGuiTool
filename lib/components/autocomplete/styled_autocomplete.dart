@@ -13,9 +13,14 @@ class StyledAutoComplete {
       String? hintText,
       Widget? icon,
       AutocompleteOnSelected<String>? onSelected,
+      Function(String typedOption)? onChanged,
     }
   ) {
-    var mutatorHeight = _MutatorHeight(height);
+    Function(String typedOption)? mutatedOnChange;
+    if (onChanged != null) {
+      mutatedOnChange = _wrapOnChanged(onChanged, options);
+    }
+
     return Autocomplete<String>(
       initialValue: TextEditingValue(text: initialValue),
       onSelected: onSelected,
@@ -23,8 +28,10 @@ class StyledAutoComplete {
         return _getOptions(textEditingValue, options);
       },
       fieldViewBuilder: (BuildContext context, TextEditingController textEditingController, FocusNode focusNode, VoidCallback onFieldSubmitted) {
+        textEditingController.text = initialValue;
         return _getAutocompleteFieldBuilder(context, textEditingController, focusNode, () { },
-            labelText: labelText, width: width, height: mutatorHeight, hintText: hintText, icon: icon, validator: (newValue) {return _validator(newValue, options, mutatorHeight);},
+            labelText: labelText, width: width, height: height, hintText: hintText, icon: icon, validator: (newValue) {return _validator(newValue, options);},
+            onChange: mutatedOnChange,
         );
       },
     );
@@ -47,10 +54,11 @@ class StyledAutoComplete {
     {
       required String labelText,
       required double width,
-      required _MutatorHeight height,
+      required double height,
       String? hintText,
       Widget? icon,
       FormFieldValidator<String>? validator,
+      Function(String)? onChange,
     }
   ) {
     return TextFormField(
@@ -58,12 +66,12 @@ class StyledAutoComplete {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       controller: textEditingController,
       focusNode: focusNode,
+      onChanged: onChange,
       decoration: InputDecoration(
         labelText: labelText,
         hintText: hintText,
         icon: icon,
-        constraints: BoxConstraints.tight(Size(width, height.height)),
-        contentPadding: const EdgeInsetsDirectional.fromSTEB(8, 0, 0, 8),
+        constraints: BoxConstraints.tight(Size(width, height)),
         border: const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(5)),
         ),
@@ -71,19 +79,19 @@ class StyledAutoComplete {
     );
   }
 
-  static String? _validator(String? value, List<String> options, _MutatorHeight height) {
+  static String? _validator(String? value, List<String> options) {
     if (options.contains(value)) {
-      height.height = 40;
       return null;
     } else {
-      height.height = 80;
       return "Invalid option";
     }
   }
-}
 
-class _MutatorHeight {
-  double height;
-
-  _MutatorHeight(this.height);
+  static Function(String typedOption) _wrapOnChanged(Function(String typedOption) originalOnChange, List<String> options) {
+    return (String typedText) {
+      if (options.contains(typedText)) {
+        originalOnChange(typedText);
+      }
+    };
+  }
 }

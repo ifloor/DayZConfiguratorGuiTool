@@ -8,6 +8,9 @@ class ExpansionMarketDataHolder {
   ExpansionMarketDataHolder.loadFromDisk(): _marketCategoriesLoader = MarketCategoriesLoader() {
     _marketCategoriesLoader.promiseWhenFinishedLoading().then((fetchedCategories) {
       categories = fetchedCategories;
+      categories?.sort((a, b) {
+       return a.DisplayName.compareTo(b.DisplayName);
+      });
     });
   }
 

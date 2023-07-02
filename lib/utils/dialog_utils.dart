@@ -4,6 +4,7 @@ import 'package:dayz_configurator_gui_tool/components/dropdown/styled_dropdown.d
 import 'package:dayz_configurator_gui_tool/components/labelable_string.dart';
 import 'package:dayz_configurator_gui_tool/components/styled_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 class DialogUtils {
@@ -111,6 +112,44 @@ class DialogUtils {
             ],
           );
         });
+
+    return completer.future;
+  }
+
+  static Future<Color?> showColorPickerDialog(BuildContext context, Color? startingColor) {
+    Color selectedColor = startingColor ?? Colors.white;
+
+    Completer<Color?> completer = Completer();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Choose a color"),
+          content: ColorPicker(
+            pickerColor: selectedColor,
+            onColorChanged: (value) {
+              selectedColor = value;
+            },
+          ),
+          actions: <Widget>[
+            PlatformElevatedButton(
+              child: const Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                completer.complete(null);
+              },
+            ),
+            PlatformElevatedButton(
+              child: const Text("Confirm"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                completer.complete(selectedColor);
+              },
+            ),
+          ],
+        );
+      }
+    );
 
     return completer.future;
   }

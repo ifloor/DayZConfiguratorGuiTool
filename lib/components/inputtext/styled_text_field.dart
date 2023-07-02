@@ -12,7 +12,7 @@ class StyledTextField {
     }
   ) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+      padding: const EdgeInsets.fromLTRB(2, 0, 2, 0),
       child: TextField(
         controller: controller,
         onChanged: onChanged,
@@ -21,7 +21,6 @@ class StyledTextField {
           border: const OutlineInputBorder(),
           labelText: labelText,
           constraints: BoxConstraints.tight(Size(width, height)),
-          contentPadding: const EdgeInsetsDirectional.fromSTEB(8, 0, 0, 8),
         ),
       ),
     );
