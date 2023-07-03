@@ -1,11 +1,14 @@
+import 'package:dayz_configurator_gui_tool/interfaces/changes_controller.dart';
 import 'package:dayz_configurator_gui_tool/serialization/models/market/profiles_market_item.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:dayz_configurator_gui_tool/utils/dialog_utils.dart';
 import 'package:flutter/material.dart';
 
 class MarketItemsSpawnsList extends StatefulWidget {
   final ProfilesMarketItem? _item;
+  final ChangesController? _changesController;
 
-  const MarketItemsSpawnsList(this._item, {super.key});
+
+  const MarketItemsSpawnsList(this._item, this._changesController, {super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -14,6 +17,8 @@ class MarketItemsSpawnsList extends StatefulWidget {
 }
 
 class _MarketItemsSpawnsListState extends State<MarketItemsSpawnsList> {
+  final _searchController = TextEditingController();
+
   List<String>? _filteredAttachments;
   String? _attachedToItem;
 
@@ -36,6 +41,7 @@ class _MarketItemsSpawnsListState extends State<MarketItemsSpawnsList> {
             hintText: "Filter spawn with attachments",
             leading: const Icon(Icons.search),
             onChanged: _didChangeFilterText,
+            controller: _searchController,
           ),
           const Divider(),
           SizedBox(
@@ -62,18 +68,29 @@ class _MarketItemsSpawnsListState extends State<MarketItemsSpawnsList> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               OutlinedButton(
+                onPressed: _didTapOnAdd,
                 child: const Icon(Icons.add),
-                onPressed: () {},
               ),
               OutlinedButton(
+                onPressed: _didTapRemove,
                 child: const Icon(Icons.delete),
-                onPressed: () {},
               )
             ],
           )
         ],
       )
     );
+  }
+
+  List<Widget> _getNotPossibleToRemoveActions() {
+    return [
+      OutlinedButton(
+        onPressed: () {
+          DialogUtils.hideDialog(context);
+        },
+        child: const Text("OK"),
+      )
+    ];
   }
 
   double _getListHeight() {
@@ -97,4 +114,30 @@ class _MarketItemsSpawnsListState extends State<MarketItemsSpawnsList> {
     setState(() {});
   }
 
+  void _didTapRemove() {
+    if (_selectedIndex == null) {
+      DialogUtils.showTextDialog(context, "No attachment selected. Not possible to remove", _getNotPossibleToRemoveActions());
+      return;
+    }
+
+    widget._item?.SpawnAttachments.removeAt(_selectedIndex!);
+    _selectedIndex = null;
+    _searchController.text = "";
+    _didChangeFilterText("");
+    widget._changesController?.changed();
+  }
+
+  void _didTapOnAdd() {
+    DialogUtils.showInputTextDialog(context, "Add new attachment", "Item Classname").then((typedVariant) {
+      if (typedVariant != null) {
+        setState(() {
+          _selectedIndex = null;
+          widget._item?.SpawnAttachments.add(typedVariant);
+          _searchController.text = "";
+          _didChangeFilterText("");
+          widget._changesController?.changed();
+        });
+      }
+    });
+  }
 }

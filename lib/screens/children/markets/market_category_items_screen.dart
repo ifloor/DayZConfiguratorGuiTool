@@ -172,14 +172,14 @@ class _MarketCategoryItemsScreenState extends State<MarketCategoryItemsScreen> {
         Row(
           mainAxisSize: MainAxisSize.max,
           children: [
-            MarketItemsSpawnsList(_selectedItem),
+            MarketItemsSpawnsList(_selectedItem, widget._changesController),
             const SizedBox(
               height: 100,
               width: 250,
               child: VerticalDivider(),
             ),
 
-            MarketItemsVariantsList(_selectedItem),
+            MarketItemsVariantsList(_selectedItem, widget._changesController),
           ],
         )
       ],

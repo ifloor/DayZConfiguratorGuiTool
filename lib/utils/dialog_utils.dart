@@ -41,7 +41,7 @@ class DialogUtils {
                 minWidth: 0,
                 maxWidth: cWidth
             ),
-            child: StyledText(text)
+            child: Text(text)
         ),
       ),
     );
@@ -49,11 +49,11 @@ class DialogUtils {
 
 
   static late TextEditingController _textFieldController;
-  static Future<String> showInputTextDialog(BuildContext context, String dialogTitle, String textHint, {String predefinedText = ""}) {
+  static Future<String?> showInputTextDialog(BuildContext context, String dialogTitle, String textHint, {String predefinedText = ""}) {
     _textFieldController = TextEditingController();
     _textFieldController.text = predefinedText;
 
-    Completer<String> completer = Completer();
+    Completer<String?> completer = Completer();
     showDialog(
         context: context,
         builder: (context) {
