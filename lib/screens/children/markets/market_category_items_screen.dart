@@ -5,6 +5,7 @@ import 'package:dayz_configurator_gui_tool/screens/children/markets/market_item_
 import 'package:dayz_configurator_gui_tool/screens/children/markets/market_item_variants_list.dart';
 import 'package:dayz_configurator_gui_tool/serialization/models/market/profiles_market.dart';
 import 'package:dayz_configurator_gui_tool/serialization/models/market/profiles_market_item.dart';
+import 'package:dayz_configurator_gui_tool/utils/dialog_utils.dart';
 import 'package:flutter/material.dart';
 
 class MarketCategoryItemsScreen extends StatefulWidget {
@@ -25,6 +26,8 @@ class _MarketCategoryItemsScreenState extends State<MarketCategoryItemsScreen> {
   ProfilesMarketItem? _selectedItem;
   int? _selectedItemIndex;
   List<ProfilesMarketItem> _filteredItems = [];
+
+  final _searchController = TextEditingController();
 
   final _itemMinStockController = TextEditingController();
   final _itemMaxStockController = TextEditingController();
@@ -49,7 +52,31 @@ class _MarketCategoryItemsScreenState extends State<MarketCategoryItemsScreen> {
       mainAxisAlignment: MainAxisAlignment.start,
       verticalDirection: VerticalDirection.up,
       children: [
-        _buildItemsList(),
+        Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            _buildItemsList(),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.25,
+              height: 20,
+              child: const Divider(),
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                OutlinedButton(
+                  onPressed: _didTapAdd,
+                  child: const Icon(Icons.add),
+                ),
+                const SizedBox(width: 8),
+                OutlinedButton(
+                  onPressed: _didTapRemove,
+                  child: const Icon(Icons.delete),
+                )
+              ],
+            )
+          ],
+        ),
         SizedBox(
           height: _getListDividerHeight(),
           child: const VerticalDivider(),
@@ -70,6 +97,7 @@ class _MarketCategoryItemsScreenState extends State<MarketCategoryItemsScreen> {
           SearchBar(
             hintText: "Filter items",
           leading: const Icon(Icons.search),
+          controller: _searchController,
           onChanged: _didChangeFilterText,
         ),
           const Divider(),
@@ -187,7 +215,7 @@ class _MarketCategoryItemsScreenState extends State<MarketCategoryItemsScreen> {
   }
 
   double _getListHeight() {
-    var calculatedHeight = MediaQuery.of(context).size.height - 343;
+    var calculatedHeight = MediaQuery.of(context).size.height - 401;
     if (calculatedHeight < 0) calculatedHeight = 0;
     return calculatedHeight;
   }
@@ -202,6 +230,21 @@ class _MarketCategoryItemsScreenState extends State<MarketCategoryItemsScreen> {
     var calculatedHeight = MediaQuery.of(context).size.height - 271;
     if (calculatedHeight < 0) calculatedHeight = 0;
     return calculatedHeight;
+  }
+
+  ProfilesMarketItem _genNewDefaultWithClassname(String classname) {
+    return ProfilesMarketItem(classname, 2, 1, -1, 100, 1, -1, [], []);
+  }
+
+  List<Widget> _getNotPossibleToRemoveActions() {
+    return [
+      OutlinedButton(
+        onPressed: () {
+          DialogUtils.hideDialog(context);
+        },
+        child: const Text("OK"),
+      )
+    ];
   }
 
   void _didChangeFilterText(String newFilterText) {
@@ -228,6 +271,35 @@ class _MarketCategoryItemsScreenState extends State<MarketCategoryItemsScreen> {
     _itemQuantityPercentageController.text = _selectedItem?.QuantityPercent.toString() ?? "1";
 
     setState(() {});
+  }
+
+  void _didTapRemove() {
+    if (_selectedItemIndex == null) {
+      DialogUtils.showTextDialog(context, "No item selected. Not possible to remove", _getNotPossibleToRemoveActions());
+      return;
+    }
+
+    widget._category?.Items.removeAt(_selectedItemIndex!);
+    _selectedItemIndex = null;
+    _selectedItem = null;
+    _searchController.text = "";
+    _didChangeFilterText("");
+    widget._changesController.changed();
+  }
+
+  void _didTapAdd() {
+    DialogUtils.showInputTextDialog(context, "Add new item", "Item Classname").then((typedClassname) {
+      if (typedClassname != null) {
+        setState(() {
+          _selectedItemIndex = null;
+          _selectedItem = null;
+          widget._category?.Items.add(_genNewDefaultWithClassname(typedClassname));
+          _searchController.text = "";
+          _didChangeFilterText("");
+          widget._changesController?.changed();
+        });
+      }
+    });
   }
 
   void _didChangeMinStockThreshold(String newValue) {

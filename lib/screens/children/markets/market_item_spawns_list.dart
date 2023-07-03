@@ -68,9 +68,10 @@ class _MarketItemsSpawnsListState extends State<MarketItemsSpawnsList> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               OutlinedButton(
-                onPressed: _didTapOnAdd,
+                onPressed: _didTapAdd,
                 child: const Icon(Icons.add),
               ),
+              const SizedBox(width: 8),
               OutlinedButton(
                 onPressed: _didTapRemove,
                 child: const Icon(Icons.delete),
@@ -127,7 +128,7 @@ class _MarketItemsSpawnsListState extends State<MarketItemsSpawnsList> {
     widget._changesController?.changed();
   }
 
-  void _didTapOnAdd() {
+  void _didTapAdd() {
     DialogUtils.showInputTextDialog(context, "Add new attachment", "Item Classname").then((typedVariant) {
       if (typedVariant != null) {
         setState(() {
