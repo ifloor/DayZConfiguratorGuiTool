@@ -42,6 +42,7 @@ dependencies:
   path_provider: ^2.0.15
   flutter_platform_widgets: ^3.3.5
   flutter_colorpicker: ^1.0.3
+  mask_text_input_formatter: ^2.4.0
 
 dev_dependencies:
   flutter_test:

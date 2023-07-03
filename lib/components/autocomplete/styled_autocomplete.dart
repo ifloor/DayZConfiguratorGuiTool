@@ -61,21 +61,43 @@ class StyledAutoComplete {
       Function(String)? onChange,
     }
   ) {
-    return TextFormField(
-      validator: validator,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      controller: textEditingController,
-      focusNode: focusNode,
-      onChanged: onChange,
-      decoration: InputDecoration(
-        labelText: labelText,
-        hintText: hintText,
-        icon: icon,
-        constraints: BoxConstraints.tight(Size(width, height)),
-        border: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(5)),
+    return _wrapInCol(_wrapInRow(
+      TextFormField(
+        validator: validator,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        controller: textEditingController,
+        focusNode: focusNode,
+        onChanged: onChange,
+        decoration: InputDecoration(
+          labelText: labelText,
+          hintText: hintText,
+          icon: icon,
+          constraints: BoxConstraints.tight(Size(width, height)),
+          border: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(5)),
+          ),
         ),
-      ),
+      )
+    ));
+  }
+
+  static Widget _wrapInCol(Widget widget) {
+    return Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          const SizedBox(height: 8),
+          widget,
+        ]
+    );
+  }
+
+  static Widget _wrapInRow(Widget widget) {
+    return Row(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          const SizedBox(width: 2),
+          widget,
+        ]
     );
   }
 

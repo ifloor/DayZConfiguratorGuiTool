@@ -1,4 +1,4 @@
-import 'package:dayz_configurator_gui_tool/components/container/labeled_container.dart';
+import 'package:dayz_configurator_gui_tool/components/bordering/labeled_container.dart';
 import 'package:dayz_configurator_gui_tool/components/labelable_object.dart';
 import 'package:flutter/material.dart';
 
@@ -32,7 +32,7 @@ class StyledDropdown<T extends LabelableObject?> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LabeledContainer(
-      label: _label,
+      label: _label ?? "",
       child: DropdownButtonHideUnderline(
         child: DropdownButton(
           isExpanded: true,
@@ -50,7 +50,7 @@ class StyledDropdown<T extends LabelableObject?> extends StatelessWidget {
                 break;
 
               case StyledDropdownStyle.PRETTY:
-                child = value?.getPrettyLabel() ?? Text("");
+                child = value?.getPrettyLabel() ?? const Text("");
                 break;
             }
 

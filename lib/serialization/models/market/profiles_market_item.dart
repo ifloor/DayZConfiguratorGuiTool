@@ -1,5 +1,4 @@
 import 'package:dayz_configurator_gui_tool/utils/deserialization_utils.dart';
-import 'package:flutter/cupertino.dart';
 
 class ProfilesMarketItem {
   String ClassName;

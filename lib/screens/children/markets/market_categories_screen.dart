@@ -1,10 +1,10 @@
 import 'package:dayz_configurator_gui_tool/components/autocomplete/styled_autocomplete.dart';
 import 'package:dayz_configurator_gui_tool/components/bordering/labeled_container.dart';
-import 'package:dayz_configurator_gui_tool/components/changes_controller_header.dart';
 import 'package:dayz_configurator_gui_tool/components/inputtext/styled_text_field.dart';
 import 'package:dayz_configurator_gui_tool/dataholders/expansion_market_data_holder.dart';
 import 'package:dayz_configurator_gui_tool/expansion/expansion_defines.dart';
 import 'package:dayz_configurator_gui_tool/interfaces/changes_controller.dart';
+import 'package:dayz_configurator_gui_tool/screens/children/markets/market_category_items_screen.dart';
 import 'package:dayz_configurator_gui_tool/serialization/models/market/profiles_market.dart';
 import 'package:dayz_configurator_gui_tool/utils/dialog_utils.dart';
 import 'package:dayz_configurator_gui_tool/utils/extensions/hex_color.dart';
@@ -19,30 +19,27 @@ class MarketCategoriesScreen extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return _MarketCategoriesScreenState(_dataHolder, _changesController);
+    return _MarketCategoriesScreenState();
   }
 
 }
 
 class _MarketCategoriesScreenState extends State<MarketCategoriesScreen> {
-  final ExpansionMarketDataHolder _dataHolder;
-  final ChangesController _changesController;
+  MarketCategoryItemsScreen? _itemsScreen;
 
-  bool firstLoaded = false;
-  int categorySelectedIndex = -1;
+  bool _firstLoaded = false;
+  int _categorySelectedIndex = -1;
   ProfilesMarket? _categorySelected;
   List<ProfilesMarket> _filteredCategories = [];
 
+
   final _categoryDisplayNameController = TextEditingController();
-
-
-  _MarketCategoriesScreenState(this._dataHolder, this._changesController);
 
   @override
   Widget build(BuildContext context) {
-    if (! firstLoaded) {
-      firstLoaded = true;
-      _dataHolder.promiseWhenFinishedLoading().then((_) {
+    if (! _firstLoaded) {
+      _firstLoaded = true;
+      widget._dataHolder.promiseWhenFinishedLoading().then((_) {
         debugPrint("Loaded");
         _didChangeCategoriesSearchText("");
         setState(() {});
@@ -50,15 +47,15 @@ class _MarketCategoriesScreenState extends State<MarketCategoriesScreen> {
     }
 
     return Row(
-        mainAxisSize: MainAxisSize.max,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.start,
-        verticalDirection: VerticalDirection.up,
-        children: [
-          _buildCategoriesList(),
-          const VerticalDivider(),
-          _buildCategoryManagingContainer(),
-        ]);
+      mainAxisSize: MainAxisSize.max,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
+      verticalDirection: VerticalDirection.up,
+      children: [
+        _buildCategoriesList(),
+        const VerticalDivider(),
+        _buildCategoryManagingContainer(),
+      ]);
   }
 
   Widget _buildCategoriesList() {
@@ -70,12 +67,13 @@ class _MarketCategoriesScreenState extends State<MarketCategoriesScreen> {
           children: [
             SearchBar(
               leading: const Icon(Icons.search),
+              hintText: "Filter categories",
               onChanged: (value) => _didChangeCategoriesSearchText(value),
             ),
             const Spacer(),
             const Divider(),
             SizedBox(
-              height: MediaQuery.of(context).size.height - 223,
+              height: _getListHeight(),
                 child: ListView.separated(
                   separatorBuilder: (BuildContext context, int index) => const Divider(),
                   scrollDirection: Axis.vertical,
@@ -84,7 +82,7 @@ class _MarketCategoriesScreenState extends State<MarketCategoriesScreen> {
                     return ListTile(
                       enableFeedback: true,
                       selectedTileColor: Colors.black12,
-                      selected: categorySelectedIndex == index,
+                      selected: _categorySelectedIndex == index,
                       title: Text(_filteredCategories[index].DisplayName ?? ""),
                       dense: true,
                       onTap: () => {_didTapOnCategory(index)},
@@ -97,7 +95,6 @@ class _MarketCategoriesScreenState extends State<MarketCategoriesScreen> {
 
   Widget _buildCategoryManagingContainer() {
     if (_categorySelected == null) return const SizedBox(height: 1);
-
     return Column(
       mainAxisSize: MainAxisSize.max,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,13 +106,13 @@ class _MarketCategoriesScreenState extends State<MarketCategoriesScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             StyledTextField.get(
-              width: MediaQuery.of(context).size.width * 0.15,
+              width: MediaQuery.of(context).size.width * 0.20,
               labelText: "File on disk",
               controller: TextEditingController(text: _categorySelected!.diskFilename),
               readOnly: true,
             ),
             StyledTextField.get(
-              width: MediaQuery.of(context).size.width * 0.25,
+              width: MediaQuery.of(context).size.width * 0.30,
               labelText: "Display name",
               controller: _categoryDisplayNameController,
               onChanged: _didChangeCategoryDisplayName,
@@ -136,7 +133,7 @@ class _MarketCategoriesScreenState extends State<MarketCategoriesScreen> {
           children: [
             LabeledContainer(
               label: "Initial stock %",
-              width: 500,
+              width: MediaQuery.of(context).size.width * 0.521,
               height: 40,
               child: Row(
                 mainAxisSize: MainAxisSize.max,
@@ -167,17 +164,6 @@ class _MarketCategoriesScreenState extends State<MarketCategoriesScreen> {
               label: "Color",
               width: 57,
               height: 40,
-              /*child: OutlinedButton(
-                onPressed: () {},
-                
-                style: ButtonStyle(
-
-                  minimumSize: MaterialStateProperty.all(const Size(50,20)),
-                  maximumSize: MaterialStateProperty.all(const Size(50,20)),
-                  backgroundColor: MaterialStateProperty.all(HexColor.fromHex(_categorySelected!.Color)),
-                ),
-                child: const Text(""),
-              ),*/
               child: InkWell(
                 onTap: _didTapCategoryColor,
                 child: Container(
@@ -192,16 +178,27 @@ class _MarketCategoriesScreenState extends State<MarketCategoriesScreen> {
               ),
             ),
           ],
-        )
+        ),
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.7,
+          child: const Divider(),
+        ),
+        _itemsScreen ?? const Text("Not loaded yet"),
       ],
     );
+  }
+
+  double _getListHeight() {
+    var calculatedHeight =  (MediaQuery.of(context).size.height - 223);
+    if (calculatedHeight < 0) calculatedHeight = 0;
+    return calculatedHeight;
   }
 
   // Category
   void _didChangeCategoriesSearchText(String newFilterText) {
     _filteredCategories = [];
 
-    _dataHolder.categories?.forEach((category) {
+    widget._dataHolder.categories?.forEach((category) {
       if (newFilterText.isEmpty || category.DisplayName.toLowerCase().contains(newFilterText.toLowerCase())) _filteredCategories.add(category);
     });
 
@@ -209,13 +206,14 @@ class _MarketCategoriesScreenState extends State<MarketCategoriesScreen> {
   }
 
   void _didTapOnCategory(int index) {
-    debugPrint("index: $index");
-    categorySelectedIndex = index;
+    _categorySelectedIndex = index;
     _categorySelected = _filteredCategories[index];
     // TFControllers
-    //   _categoryDiskFilenameController.text = categorySelected!.diskFilename;
       _categoryDisplayNameController.text = _categorySelected!.DisplayName;
     //
+    // Children
+    _itemsScreen = MarketCategoryItemsScreen(_categorySelected, widget._changesController);
+
     setState(() {});
   }
 
@@ -229,34 +227,34 @@ class _MarketCategoriesScreenState extends State<MarketCategoriesScreen> {
   void _didChangeCategoryDisplayName(String newName) {
     setState(() {
       _categorySelected?.DisplayName = newName;
-      _changesController.changed();
+      widget._changesController.changed();
     });
   }
 
   void _didChangeCategoryIcon(String newIcon) {
     setState(() {
       _categorySelected?.Icon = newIcon;
-      _changesController.changed();
+      widget._changesController.changed();
     });
   }
 
   void _didChangeCategoryInitStockPercent(double newValue) {
     setState(() {
-      _changesController.changed();
+      widget._changesController.changed();
       _categorySelected?.InitStockPercent = newValue;
     });
   }
 
   void _didChangeCategoryIsExchange(bool? newValue) {
     setState(() {
-      _changesController.changed();
+      widget._changesController.changed();
       _categorySelected?.IsExchange = (newValue ?? false) ? 1 : 0;
     });
   }
 
   void _didChangeCategoryColor(Color newColor) {
     setState(() {
-      _changesController.changed();
+      widget._changesController.changed();
       _categorySelected?.Color = newColor.toHex(leadingHashSign: false);
     });
   }
