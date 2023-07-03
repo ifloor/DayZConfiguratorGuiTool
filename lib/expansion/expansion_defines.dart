@@ -1,3 +1,7 @@
+import 'dart:ui';
+
+import 'package:dayz_configurator_gui_tool/utils/extensions/hex_color.dart';
+
 class ExpansionDefines {
   // From https://github.com/salutesh/DayZ-Expansion-Scripts/wiki/%5BServer-Hosting%5D-List-of-default-icon-names
   static final List<String> availableIconNames = [
@@ -167,4 +171,6 @@ class ExpansionDefines {
     "Worms",
     "YouTube"
   ];
+
+  static final Color defaultMarketMenuColor = HexColor.fromHex("FBFCFEFF");
 }

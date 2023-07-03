@@ -28,10 +28,12 @@ class _MarketCategoriesScreenState extends State<MarketCategoriesScreen> {
   MarketCategoryItemsScreen? _itemsScreen;
 
   bool _firstLoaded = false;
-  int _categorySelectedIndex = -1;
+  int? _categorySelectedIndex;
   ProfilesMarket? _categorySelected;
   List<ProfilesMarket> _filteredCategories = [];
 
+
+  final _searchController = TextEditingController();
 
   final _categoryDisplayNameController = TextEditingController();
 
@@ -52,7 +54,25 @@ class _MarketCategoriesScreenState extends State<MarketCategoriesScreen> {
       mainAxisAlignment: MainAxisAlignment.start,
       verticalDirection: VerticalDirection.up,
       children: [
-        _buildCategoriesList(),
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.25,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              SearchBar(
+                leading: const Icon(Icons.search),
+                hintText: "Filter categories",
+                controller: _searchController,
+                onChanged: (value) => _didChangeCategoriesSearchText(value),
+              ),
+              const Divider(),
+              _buildCategoriesList(),
+              const Divider(),
+              _buildCategoriesActions(),
+            ],
+          )
+        ),
         const VerticalDivider(),
         _buildCategoryManagingContainer(),
       ]);
@@ -60,36 +80,41 @@ class _MarketCategoriesScreenState extends State<MarketCategoriesScreen> {
 
   Widget _buildCategoriesList() {
     return SizedBox(
-        width: MediaQuery.of(context).size.width * 0.25,
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SearchBar(
-              leading: const Icon(Icons.search),
-              hintText: "Filter categories",
-              onChanged: (value) => _didChangeCategoriesSearchText(value),
-            ),
-            const Spacer(),
-            const Divider(),
-            SizedBox(
-              height: _getListHeight(),
-                child: ListView.separated(
-                  separatorBuilder: (BuildContext context, int index) => const Divider(),
-                  scrollDirection: Axis.vertical,
-                  itemCount: _filteredCategories.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      enableFeedback: true,
-                      selectedTileColor: Colors.black12,
-                      selected: _categorySelectedIndex == index,
-                      title: Text(_filteredCategories[index].DisplayName ?? ""),
-                      dense: true,
-                      onTap: () => {_didTapOnCategory(index)},
-                    );
-                  })),
-          ],
+      height: _getListHeight(),
+      child: ListView.separated(
+        separatorBuilder: (BuildContext context, int index) =>
+          const Divider(),
+        scrollDirection: Axis.vertical,
+        itemCount: _filteredCategories.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            enableFeedback: true,
+            selectedTileColor: Colors.black12,
+            selected: _categorySelectedIndex == index,
+            title: Text(_filteredCategories[index].DisplayName ?? ""),
+            dense: true,
+            onTap: () => {_didTapOnCategory(index)},
+          );
+        }),
+    );
+  }
+
+  Widget _buildCategoriesActions() {
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        OutlinedButton(
+          onPressed: _didTapAdd,
+          child: const Icon(Icons.add),
+        ),
+        const SizedBox(width: 8),
+        OutlinedButton(
+          onPressed: _didTapRemove,
+          child: const Icon(Icons.delete),
         )
+      ],
     );
   }
 
@@ -188,10 +213,71 @@ class _MarketCategoriesScreenState extends State<MarketCategoriesScreen> {
     );
   }
 
+  ProfilesMarket _genNewDefaultWithFilename(String filename) {
+    var version = 1;
+    var categories = widget._dataHolder.categories ?? [];
+    if (categories.isNotEmpty) version = categories.first.m_Version;
+
+
+    var newMarket = ProfilesMarket(
+      version,
+      filename.replaceAll(".json", ""),
+      ExpansionDefines.availableIconNames.first,
+      ExpansionDefines.defaultMarketMenuColor.toHex(leadingHashSign: false),
+      0,
+      75,
+      []
+    );
+    newMarket.diskFilename = filename;
+
+    return newMarket;
+  }
+
   double _getListHeight() {
-    var calculatedHeight =  (MediaQuery.of(context).size.height - 223);
+    var calculatedHeight = (MediaQuery.of(context).size.height - 279);
     if (calculatedHeight < 0) calculatedHeight = 0;
     return calculatedHeight;
+  }
+
+  List<Widget> _getNotPossibleToRemoveActions() {
+    return [
+      OutlinedButton(
+        onPressed: () {
+          DialogUtils.hideDialog(context);
+        },
+        child: const Text("OK"),
+      )
+    ];
+  }
+
+  void _didTapRemove() {
+    if (_categorySelectedIndex == null) {
+      DialogUtils.showTextDialog(context, "No category selected. Not possible to remove", _getNotPossibleToRemoveActions());
+      return;
+    }
+
+    widget._dataHolder.tagToDeletion(_categorySelected!);
+    widget._dataHolder.categories?.removeAt(_categorySelectedIndex!);
+    _categorySelectedIndex = null;
+    _categorySelected = null;
+    _searchController.text = "";
+    _didChangeCategoriesSearchText("");
+    widget._changesController.changed();
+  }
+
+  void _didTapAdd() {
+    DialogUtils.showInputTextDialog(context, "Add new category", "file name: (something.json)").then((typedFilename) {
+      if (typedFilename != null && typedFilename.trim().isNotEmpty) {
+        setState(() {
+          _categorySelectedIndex = null;
+          _categorySelected = null;
+          widget._dataHolder.categories?.add(_genNewDefaultWithFilename(typedFilename));
+          _searchController.text = "";
+          _didChangeCategoriesSearchText("");
+          widget._changesController.changed();
+        });
+      }
+    });
   }
 
   // Category

@@ -85,6 +85,16 @@ class MarketCategoriesLoader {
     return futureCompleter.future;
   }
 
+  void deleteMarketFromDisk(ProfilesMarket market) {
+    try {
+      File file = File("${_folderDirectoryPath()}/${market.diskFilename}");
+      file.delete();
+      debugPrint("Deleted market file: ${market.diskFilename}");
+    } catch (error) {
+      debugPrint("Error deleting market: ${market.diskFilename}"); // TODO warn about this using a toast?
+    }
+  }
+
   String _folderDirectoryPath() {
     var folderSelection = FolderSelection.getInstance();
     return "${folderSelection.selectedFolder ?? "n/a"}/${folderSelection.profilesName}/ExpansionMod/Market";

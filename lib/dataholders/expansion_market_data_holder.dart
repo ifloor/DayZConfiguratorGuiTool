@@ -4,12 +4,13 @@ import 'package:dayz_configurator_gui_tool/serialization/engine/market/market_ca
 class ExpansionMarketDataHolder {
   List<ProfilesMarket>? categories;
   final MarketCategoriesLoader _marketCategoriesLoader;
+  final List<ProfilesMarket> _marketsPendingDeletion = [];
 
   ExpansionMarketDataHolder.loadFromDisk(): _marketCategoriesLoader = MarketCategoriesLoader() {
     _marketCategoriesLoader.promiseWhenFinishedLoading().then((fetchedCategories) {
       categories = fetchedCategories;
       categories?.sort((a, b) {
-       return a.DisplayName.compareTo(b.DisplayName);
+       return a.DisplayName.compareTo(b.DisplayName) * -1; // Invert order ;)
       });
     });
   }
@@ -19,7 +20,19 @@ class ExpansionMarketDataHolder {
   }
 
   Future<void> saveToDisk() {
+    _deleteAllTaggeds();
     return _marketCategoriesLoader.writeChangesToDisk();
   }
 
+  void tagToDeletion(ProfilesMarket marketToDelete) {
+    _marketsPendingDeletion.add(marketToDelete);
+  }
+
+  void _deleteAllTaggeds() {
+    for (var marketToDelete in _marketsPendingDeletion) {
+      _marketCategoriesLoader.deleteMarketFromDisk(marketToDelete);
+    }
+
+    _marketsPendingDeletion.clear();
+  }
 }
