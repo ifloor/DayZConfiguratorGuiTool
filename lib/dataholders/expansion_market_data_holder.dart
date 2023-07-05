@@ -10,7 +10,7 @@ class ExpansionMarketDataHolder {
     _marketCategoriesLoader.promiseWhenFinishedLoading().then((fetchedCategories) {
       categories = fetchedCategories;
       categories?.sort((a, b) {
-       return a.DisplayName.compareTo(b.DisplayName) * -1; // Invert order ;)
+       return a.DisplayName.compareTo(b.DisplayName);
       });
     });
   }
