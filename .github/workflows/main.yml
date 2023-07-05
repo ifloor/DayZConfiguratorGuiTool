@@ -3,7 +3,7 @@ name: Flutter Workflow
 on: [push, workflow_dispatch]
 jobs:
   build:
-    runs-on: debian-latest
+    runs-on: windows-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
