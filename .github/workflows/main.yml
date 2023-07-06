@@ -35,4 +35,4 @@ jobs:
           path: dayz_configurator_gui_tool.zip
 
       - name: Ls
-        run: ls
+      - run: ls
