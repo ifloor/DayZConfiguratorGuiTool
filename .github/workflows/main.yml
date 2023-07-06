@@ -1,6 +1,9 @@
 name: Flutter Workflow
 
-on: [push, workflow_dispatch]
+on:
+  push:
+    branches:
+      - main
 jobs:
   build:
     runs-on: windows-latest
@@ -18,3 +21,16 @@ jobs:
 
       - name: Build
         run: flutter build windows
+
+      - name: Move folder
+        run: mv .\build\windows\runner\Release .\dayz_configurator_gui_tool
+
+      - uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r dayz_configurator_gui_tool.zip dayz_configurator_gui_tool
+
+      - name: Upload built zip
+        uses: actions/upload-artifact@v3
+        with:
+          name: dayz_configurator_gui_tool
+          path: dayz_configurator_gui_tool.zip
