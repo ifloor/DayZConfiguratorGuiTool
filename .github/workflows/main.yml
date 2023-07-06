@@ -26,7 +26,7 @@ jobs:
         run: mv .\build\windows\runner\Release .\dayz_configurator_gui_tool
 
       - name: Compress
-      - run: Compress-Archive -Path dayz_configurator_gui_tool/* -Destination dayz_configurator_gui_tool.zip
+        run: Compress-Archive -Path dayz_configurator_gui_tool/* -Destination dayz_configurator_gui_tool.zip
 
       - name: Upload built zip
         uses: actions/upload-artifact@v3
@@ -35,4 +35,4 @@ jobs:
           path: dayz_configurator_gui_tool.zip
 
       - name: Ls
-      - run: ls
+      run: ls
