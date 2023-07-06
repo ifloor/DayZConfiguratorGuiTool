@@ -2,8 +2,10 @@ name: Flutter Workflow
 
 on:
   push:
-    branches:
-      - main
+    #branches:
+      #- main
+    tags:
+    - '*'
 jobs:
   build:
     runs-on: windows-latest
