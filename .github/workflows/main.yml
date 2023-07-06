@@ -34,5 +34,7 @@ jobs:
           name: dayz_configurator_gui_tool
           path: dayz_configurator_gui_tool.zip
 
-      - name: Ls
-        run: ls
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "dayz_configurator_gui_tool.zip"
+          bodyFile: "body.md"
