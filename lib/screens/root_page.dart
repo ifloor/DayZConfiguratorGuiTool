@@ -1,6 +1,3 @@
-import 'dart:ffi';
-
-import 'package:dayz_configurator_gui_tool/components/menu/lateral_menu.dart';
 import 'package:dayz_configurator_gui_tool/components/menu/menu_children_interfaces.dart';
 import 'package:dayz_configurator_gui_tool/components/styled_text.dart';
 import 'package:dayz_configurator_gui_tool/defines/style_colors.dart';

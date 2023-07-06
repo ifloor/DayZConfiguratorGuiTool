@@ -1,0 +1,37 @@
+name: Flutter Workflow
+
+on:
+  workflow_dispatch
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build
+        run: flutter build windows
+
+      - name: Move folder
+        run: mv .\build\windows\runner\Release .\dayz_configurator_gui_tool
+
+      - uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r dayz_configurator_gui_tool.zip dayz_configurator_gui_tool
+
+      - name: Upload built zip
+        uses: actions/upload-artifact@v3
+        with:
+          name: dayz_configurator_gui_tool
+          path: dayz_configurator_gui_tool.zip
