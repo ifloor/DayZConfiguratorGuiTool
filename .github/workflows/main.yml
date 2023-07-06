@@ -26,11 +26,11 @@ jobs:
         run: mv .\build\windows\runner\Release .\dayz_configurator_gui_tool
 
       - name: Archive Release
-          uses: thedoctor0/zip-release@0.7.1
-          with:
-            type: 'zip'
-            filename: 'dayz_configurator_gui_tool.zip'
-            directory: 'dayz_configurator_gui_tool/'
+        uses: thedoctor0/zip-release@0.7.1
+        with:
+          type: 'zip'
+          filename: 'dayz_configurator_gui_tool.zip'
+          directory: 'dayz_configurator_gui_tool/'
 
       - name: Upload built zip
         uses: actions/upload-artifact@v3
