@@ -5,7 +5,7 @@ on:
     #branches:
       #- main
     tags:
-    - '*'
+    - 'v*'
 jobs:
   build:
     runs-on: windows-latest
@@ -36,7 +36,17 @@ jobs:
           name: dayz_configurator_gui_tool
           path: dayz_configurator_gui_tool.zip
 
-      - uses: ncipollo/release-action@v1
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          artifacts: "dayz_configurator_gui_tool.zip"
-          bodyFile: "body.md"
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Changes in this Release
+            - First Change
+            - Second Change
+          draft: false
+          prerelease: false
