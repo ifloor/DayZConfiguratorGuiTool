@@ -1,4 +1,5 @@
 import 'package:dayz_configurator_gui_tool/components/bordering/labeled_container.dart';
+import 'package:dayz_configurator_gui_tool/components/button/styled_button.dart';
 import 'package:dayz_configurator_gui_tool/components/inputtext/styled_text_field.dart';
 import 'package:dayz_configurator_gui_tool/interfaces/changes_controller.dart';
 import 'package:dayz_configurator_gui_tool/screens/children/markets/market_item_spawns_list.dart';
@@ -6,6 +7,7 @@ import 'package:dayz_configurator_gui_tool/screens/children/markets/market_item_
 import 'package:dayz_configurator_gui_tool/serialization/models/market/profiles_market.dart';
 import 'package:dayz_configurator_gui_tool/serialization/models/market/profiles_market_item.dart';
 import 'package:dayz_configurator_gui_tool/utils/dialog_utils.dart';
+import 'package:dayz_configurator_gui_tool/utils/extensions/swappable_list.dart';
 import 'package:flutter/material.dart';
 
 class MarketCategoryItemsScreen extends StatefulWidget {
@@ -38,7 +40,6 @@ class _MarketCategoryItemsScreenState extends State<MarketCategoryItemsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint("Building managing for category: ${widget._category?.DisplayName}");
     if (_attachedToCategory == null || _attachedToCategory!.diskFilename != widget._category?.diskFilename) {
       _attachedToCategory = widget._category;
       _didChangeFilterText("");
@@ -61,20 +62,7 @@ class _MarketCategoryItemsScreenState extends State<MarketCategoryItemsScreen> {
               height: 20,
               child: const Divider(),
             ),
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                OutlinedButton(
-                  onPressed: _didTapAdd,
-                  child: const Icon(Icons.add),
-                ),
-                const SizedBox(width: 8),
-                OutlinedButton(
-                  onPressed: _didTapRemove,
-                  child: const Icon(Icons.delete),
-                )
-              ],
-            )
+            _buildItemsListActions()
           ],
         ),
         SizedBox(
@@ -96,10 +84,10 @@ class _MarketCategoryItemsScreenState extends State<MarketCategoryItemsScreen> {
         children: [
           SearchBar(
             hintText: "Filter items",
-          leading: const Icon(Icons.search),
-          controller: _searchController,
-          onChanged: _didChangeFilterText,
-        ),
+            leading: const Icon(Icons.search),
+            controller: _searchController,
+            onChanged: _didChangeFilterText,
+          ),
           const Divider(),
           SizedBox(
             height: _getListHeight(),
@@ -121,6 +109,47 @@ class _MarketCategoryItemsScreenState extends State<MarketCategoryItemsScreen> {
           ),
         ],
       )
+    );
+  }
+
+  Widget _buildItemsListActions() {
+    List<Widget> rowChildren = [
+      StyledButton.get(
+        onPressed: _didTapAdd,
+        child: const Icon(Icons.add),
+      ),
+      const SizedBox(width: 2),
+      StyledButton.get(
+        onPressed: _didTapRemove,
+        child: const Icon(Icons.delete),
+      ),
+    ];
+
+    if (_searchController.value.text.isEmpty) {
+      if (_selectedItemIndex != null && _selectedItemIndex! > 0) {
+        rowChildren.addAll([
+          const SizedBox(width: 2),
+          StyledButton.get(
+            onPressed: _didTapSwapUp,
+            child: const Icon(Icons.arrow_upward_sharp),
+          ),
+        ]);
+      }
+
+      if (_selectedItemIndex != null && _selectedItemIndex! < _filteredItems.length - 1) {
+        rowChildren.addAll([
+          const SizedBox(width: 2),
+          StyledButton.get(
+            onPressed: _didTapSwapDown,
+            child: const Icon(Icons.arrow_downward_sharp),
+          ),
+        ]);
+      }
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      children: rowChildren,
     );
   }
 
@@ -236,7 +265,7 @@ class _MarketCategoryItemsScreenState extends State<MarketCategoryItemsScreen> {
     return ProfilesMarketItem(classname, 2, 1, -1, 100, 1, -1, [], []);
   }
 
-  List<Widget> _getNotPossibleToRemoveActions() {
+  List<Widget> _getDialogOkActions() {
     return [
       OutlinedButton(
         onPressed: () {
@@ -247,17 +276,38 @@ class _MarketCategoryItemsScreenState extends State<MarketCategoryItemsScreen> {
     ];
   }
 
+  int _translateFilteredIndexToList() {
+    if (_selectedItemIndex == null) return -1;
+
+
+    String filteredItemClassName = _filteredItems[_selectedItemIndex!].ClassName;
+
+    int foundIndex = -1;
+    for (int i = 0; i < widget._category!.Items.length; i++) {
+      ProfilesMarketItem item = widget._category!.Items[i];
+
+      if (item.ClassName == filteredItemClassName) {
+        foundIndex = i;
+        break;
+      }
+    }
+
+    return foundIndex;
+  }
+
   void _didChangeFilterText(String newFilterText) {
     _filteredItems = [];
 
     widget._category?.Items.forEach((item) {
-      if (newFilterText.isEmpty || item.ClassName.toLowerCase().contains(newFilterText.toLowerCase())) _filteredItems?.add(item);
+      if (newFilterText.isEmpty || item.ClassName.toLowerCase().contains(newFilterText.toLowerCase())) _filteredItems.add(item);
     });
 
+    _selectedItemIndex = null;
+    _selectedItem = null;
     setState(() {});
   }
 
-  // Item
+  // Actions
   void _didTapOnItem(int index) {
     _selectedItemIndex = index;
     _selectedItem = _filteredItems[index];
@@ -275,16 +325,51 @@ class _MarketCategoryItemsScreenState extends State<MarketCategoryItemsScreen> {
 
   void _didTapRemove() {
     if (_selectedItemIndex == null) {
-      DialogUtils.showTextDialog(context, "No item selected. Not possible to remove", _getNotPossibleToRemoveActions());
+      DialogUtils.showTextDialog(context, "No item selected. Not possible to remove", _getDialogOkActions());
       return;
     }
 
-    widget._category?.Items.removeAt(_selectedItemIndex!);
+    int translatedIndex = _translateFilteredIndexToList();
+    if (translatedIndex < 0) return;
+
+    widget._category?.Items.removeAt(translatedIndex);
     _selectedItemIndex = null;
     _selectedItem = null;
     _searchController.text = "";
     _didChangeFilterText("");
     widget._changesController.changed();
+  }
+
+  void _didTapSwapUp() {
+    if (_selectedItemIndex == null) {
+      DialogUtils.showTextDialog(context, "No item selected. Not possible to swap", _getDialogOkActions());
+      return;
+    }
+
+    if(_selectedItemIndex == 0) return;
+
+    setState(() {
+      widget._category?.Items.swap(_selectedItemIndex!, _selectedItemIndex! - 1);
+      _selectedItemIndex = _selectedItemIndex! - 1;
+      widget._changesController.changed();
+      _didChangeFilterText(_searchController.text);
+    });
+  }
+
+  void _didTapSwapDown() {
+    if (_selectedItemIndex == null) {
+      DialogUtils.showTextDialog(context, "No item selected. Not possible to swap", _getDialogOkActions());
+      return;
+    }
+
+    if(_selectedItemIndex == _filteredItems.length - 1) return;
+
+    setState(() {
+      widget._category?.Items.swap(_selectedItemIndex!, _selectedItemIndex! + 1);
+      _selectedItemIndex = _selectedItemIndex! + 1;
+      widget._changesController.changed();
+      _didChangeFilterText(_searchController.text);
+    });
   }
 
   void _didTapAdd() {

@@ -1,5 +1,6 @@
 import 'package:dayz_configurator_gui_tool/components/autocomplete/styled_autocomplete.dart';
 import 'package:dayz_configurator_gui_tool/components/bordering/labeled_container.dart';
+import 'package:dayz_configurator_gui_tool/components/button/styled_button.dart';
 import 'package:dayz_configurator_gui_tool/components/inputtext/styled_text_field.dart';
 import 'package:dayz_configurator_gui_tool/dataholders/expansion_market_data_holder.dart';
 import 'package:dayz_configurator_gui_tool/expansion/expansion_defines.dart';
@@ -105,12 +106,12 @@ class _MarketCategoriesScreenState extends State<MarketCategoriesScreen> {
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        OutlinedButton(
+        StyledButton.get(
           onPressed: _didTapAdd,
           child: const Icon(Icons.add),
         ),
-        const SizedBox(width: 8),
-        OutlinedButton(
+        const SizedBox(width: 2),
+        StyledButton.get(
           onPressed: _didTapRemove,
           child: const Icon(Icons.delete),
         )
@@ -288,6 +289,8 @@ class _MarketCategoriesScreenState extends State<MarketCategoriesScreen> {
       if (newFilterText.isEmpty || category.DisplayName.toLowerCase().contains(newFilterText.toLowerCase())) _filteredCategories.add(category);
     });
 
+    _categorySelectedIndex = null;
+    _categorySelected = null;
     setState(() {});
   }
 

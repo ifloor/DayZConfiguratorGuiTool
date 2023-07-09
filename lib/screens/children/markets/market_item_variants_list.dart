@@ -1,6 +1,8 @@
+import 'package:dayz_configurator_gui_tool/components/button/styled_button.dart';
 import 'package:dayz_configurator_gui_tool/interfaces/changes_controller.dart';
 import 'package:dayz_configurator_gui_tool/serialization/models/market/profiles_market_item.dart';
 import 'package:dayz_configurator_gui_tool/utils/dialog_utils.dart';
+import 'package:dayz_configurator_gui_tool/utils/extensions/swappable_list.dart';
 import 'package:flutter/material.dart';
 
 class MarketItemsVariantsList extends StatefulWidget {
@@ -64,27 +66,55 @@ class _MarketItemsVariantsListState extends State<MarketItemsVariantsList> {
             )
           ),
           const Divider(),
-          Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              OutlinedButton(
-                onPressed: _didTapAdd,
-                child: const Icon(Icons.add),
-              ),
-              const SizedBox(width: 8),
-              OutlinedButton(
-                onPressed: _didTapRemove,
-                child: const Icon(Icons.delete),
-              )
-            ],
-          )
+          _buildListActions(),
         ],
       )
     );
   }
 
-  List<Widget> _getNotPossibleToRemoveActions() {
+  Widget _buildListActions() {
+    List<Widget> rowChildren = [
+      StyledButton.get(
+        onPressed: _didTapAdd,
+        child: const Icon(Icons.add),
+      ),
+      const SizedBox(width: 2),
+      StyledButton.get(
+        onPressed: _didTapRemove,
+        child: const Icon(Icons.delete),
+      ),
+    ];
+
+    if (_searchController.value.text.isEmpty) {
+      if (_selectedIndex != null && _selectedIndex! > 0) {
+        rowChildren.addAll([
+          const SizedBox(width: 2),
+          StyledButton.get(
+            onPressed: _didTapSwapUp,
+            child: const Icon(Icons.arrow_upward_sharp),
+          ),
+        ]);
+      }
+
+      if (_selectedIndex != null && _selectedIndex! < _filteredVariants!.length - 1) {
+        rowChildren.addAll([
+          const SizedBox(width: 2),
+          StyledButton.get(
+            onPressed: _didTapSwapDown,
+            child: const Icon(Icons.arrow_downward_sharp),
+          ),
+        ]);
+      }
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: rowChildren,
+    );
+  }
+
+  List<Widget> _getDialogOkActions() {
     return [
       OutlinedButton(
         onPressed: () {
@@ -95,15 +125,30 @@ class _MarketItemsVariantsListState extends State<MarketItemsVariantsList> {
     ];
   }
 
+  int _translateFilteredIndexToList() {
+    if (_selectedIndex == null) return -1;
+    if (widget._item == null) return -1;
+
+
+    String filteredItemClassName = _filteredVariants?[_selectedIndex!] ?? "";
+
+    int foundIndex = -1;
+    for (int i = 0; i < widget._item!.Variants.length; i++) {
+      String variantClassname = widget._item!.Variants[i];
+
+      if (variantClassname == filteredItemClassName) {
+        foundIndex = i;
+        break;
+      }
+    }
+
+    return foundIndex;
+  }
+
   double _getListHeight() {
     var calculatedHeight = MediaQuery.of(context).size.height - 505;
     if (calculatedHeight < 0) calculatedHeight = 0;
     return calculatedHeight;
-  }
-
-  void _didTapOnItem(int index) {
-    _selectedIndex = index;
-    setState(() {});
   }
 
   void _didChangeFilterText(String newFilterText) {
@@ -113,20 +158,61 @@ class _MarketItemsVariantsListState extends State<MarketItemsVariantsList> {
       if (newFilterText.isEmpty || variant.toLowerCase().contains(newFilterText.toLowerCase())) _filteredVariants?.add(variant);
     });
 
+    _selectedIndex = null;
+    setState(() {});
+  }
+
+  void _didTapOnItem(int index) {
+    _selectedIndex = index;
     setState(() {});
   }
 
   void _didTapRemove() {
     if (_selectedIndex == null) {
-      DialogUtils.showTextDialog(context, "No variant selected. Not possible to remove", _getNotPossibleToRemoveActions());
+      DialogUtils.showTextDialog(context, "No variant selected. Not possible to remove", _getDialogOkActions());
       return;
     }
 
-    widget._item?.Variants.removeAt(_selectedIndex!);
+    int translatedIndex = _translateFilteredIndexToList();
+    if (translatedIndex < 0) return;
+
+    widget._item?.Variants.removeAt(translatedIndex);
     _selectedIndex = null;
     _searchController.text = "";
     _didChangeFilterText("");
     widget._changesController?.changed();
+  }
+
+  void _didTapSwapUp() {
+    if (_selectedIndex == null) {
+      DialogUtils.showTextDialog(context, "No variant selected. Not possible to swap", _getDialogOkActions());
+      return;
+    }
+
+    if(_selectedIndex == 0) return;
+
+    setState(() {
+      widget._item?.Variants.swap(_selectedIndex!, _selectedIndex! - 1);
+      _selectedIndex = _selectedIndex! - 1;
+      widget._changesController?.changed();
+      _didChangeFilterText(_searchController.text);
+    });
+  }
+
+  void _didTapSwapDown() {
+    if (_selectedIndex == null) {
+      DialogUtils.showTextDialog(context, "No variant selected. Not possible to swap", _getDialogOkActions());
+      return;
+    }
+
+    if(_selectedIndex == _filteredVariants!.length - 1) return;
+
+    setState(() {
+      widget._item?.Variants.swap(_selectedIndex!, _selectedIndex! + 1);
+      _selectedIndex = _selectedIndex! + 1;
+      widget._changesController?.changed();
+      _didChangeFilterText(_searchController.text);
+    });
   }
 
   void _didTapAdd() {
