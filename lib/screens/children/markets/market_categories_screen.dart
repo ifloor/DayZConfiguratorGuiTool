@@ -92,7 +92,7 @@ class _MarketCategoriesScreenState extends State<MarketCategoriesScreen> {
             enableFeedback: true,
             selectedTileColor: Colors.black12,
             selected: _categorySelectedIndex == index,
-            title: Text(_filteredCategories[index].DisplayName ?? ""),
+            title: Text(_filteredCategories[index].diskFilename.replaceAll(".json", "")),
             dense: true,
             onTap: () => {_didTapOnCategory(index)},
           );
