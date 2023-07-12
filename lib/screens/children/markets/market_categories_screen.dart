@@ -286,7 +286,13 @@ class _MarketCategoriesScreenState extends State<MarketCategoriesScreen> {
     _filteredCategories = [];
 
     widget._dataHolder.categories?.forEach((category) {
-      if (newFilterText.isEmpty || category.DisplayName.toLowerCase().contains(newFilterText.toLowerCase())) _filteredCategories.add(category);
+      if (
+        newFilterText.isEmpty ||
+        category.DisplayName.toLowerCase().contains(newFilterText.toLowerCase()) ||
+        category.diskFilename.toLowerCase().contains(newFilterText.toLowerCase())
+      ) {
+        _filteredCategories.add(category);
+      }
     });
 
     _categorySelectedIndex = null;
