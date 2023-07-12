@@ -38,9 +38,6 @@ class StyledAutoComplete {
   }
 
   static FutureOr<Iterable<String>> _getOptions(TextEditingValue textEditingValue, List<String> options) {
-    if (textEditingValue.text == '') {
-      return const Iterable<String>.empty();
-    }
     return options.where((String option) {
       return option.toLowerCase().contains(textEditingValue.text.toLowerCase());
     });
