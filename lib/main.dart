@@ -4,8 +4,11 @@ import 'package:dayz_configurator_gui_tool/utils/shared_prefferences_utils.dart'
 import 'package:flutter/material.dart';
 
 void main() {
-  SharedPreferencesUtils.getInstance();
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+
+  SharedPreferencesUtils.getInstance().waitUntilInitialized().then((_) => {
+    runApp(const MyApp())
+  });
 }
 
 class MyApp extends StatelessWidget {
