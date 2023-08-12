@@ -31,19 +31,19 @@ class ProfilesMarketItem {
         MaxStockThreshold = json['MaxStockThreshold'],
         MinStockThreshold = json['MinStockThreshold'],
         QuantityPercent = int.parse((json['QuantityPercent']).toString()),
-        SpawnAttachments = DeserializationUtils.toStringList(json['SpawnAttachments']),
-        Variants = DeserializationUtils.toStringList(json['Variants']);
+        SpawnAttachments = DeserializationUtils.toStringList(json['SpawnAttachments'], applyLowerCasing: true),
+        Variants = DeserializationUtils.toStringList(json['Variants'], applyLowerCasing: true);
 
   Map<String, dynamic> toJson() => {
-    'ClassName': ClassName,
+    'ClassName': ClassName.toLowerCase(),
     'MaxPriceThreshold': MaxPriceThreshold,
     'MinPriceThreshold': MinPriceThreshold,
     'SellPricePercent': SellPricePercent,
     'MaxStockThreshold': MaxStockThreshold,
     'MinStockThreshold': MinStockThreshold,
     'QuantityPercent': QuantityPercent,
-    'SpawnAttachments': SpawnAttachments,
-    'Variants': Variants,
+    'SpawnAttachments': DeserializationUtils.toStringList(SpawnAttachments, applyLowerCasing: true),
+    'Variants': DeserializationUtils.toStringList(Variants, applyLowerCasing: true),
   };
 
   static List<ProfilesMarketItem> parseList(List<dynamic> jsons) {
