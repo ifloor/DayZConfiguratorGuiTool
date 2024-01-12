@@ -24,7 +24,7 @@ class ProfilesMarketItem {
   );
 
   ProfilesMarketItem.fromJson(Map<String, dynamic> json) :
-        ClassName = json['ClassName'].toLowerCase(),
+        ClassName = json['ClassName']?.toLowerCase(),
         MaxPriceThreshold = json['MaxPriceThreshold'],
         MinPriceThreshold = json['MinPriceThreshold'],
         SellPricePercent = json['SellPricePercent'],

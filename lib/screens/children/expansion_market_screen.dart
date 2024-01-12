@@ -27,7 +27,7 @@ class ExpansionMarketScreen extends StatefulWidget implements ChildrenMenuWidget
   }
 }
 
-class _ExpansionMarketScreenState extends State<ExpansionMarketScreen> implements ChangesControllerOwner{
+class _ExpansionMarketScreenState extends State<ExpansionMarketScreen> implements ChangesControllerOwner {
   final ExpansionMarketDataHolder _dataHolder = ExpansionMarketDataHolder.loadFromDisk();
 
   late List<Widget> _childrenTabs;
@@ -108,7 +108,7 @@ class _ExpansionMarketScreenState extends State<ExpansionMarketScreen> implement
     debugPrint("Watching");
     // if(_dataHolder.marketCategoriesLoader)
     _dataHolder.promiseWhenFinishedLoading().then((categories) {
-      debugPrint("cats finished");
+      debugPrint("categorys finished");
       setState(() {});
     });
   }

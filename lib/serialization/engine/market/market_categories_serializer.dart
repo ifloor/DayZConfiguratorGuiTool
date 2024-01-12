@@ -14,8 +14,15 @@ class MarketCategoriesLoader {
     var files = Directory(_folderDirectoryPath()).listSync();
     // TODO toast when error happens about directory not working
     List<ProfilesMarket> parsedMarkets = [];
+    int filesSkipped = 0;
     for (var fileRef in files) {
       debugPrint("file: ${fileRef.path}");
+      if (! fileRef.path.toLowerCase().endsWith(".json")) {
+        debugPrint("file: ${fileRef.path} is not json. Skipping...");
+        filesSkipped++;
+        continue;
+      }
+
       var file = File(fileRef.path);
       file.readAsString().then((fileContent) {
         debugPrint("Read: ${fileRef.path}");
@@ -26,7 +33,7 @@ class MarketCategoriesLoader {
 
         parsedMarkets.add(market);
 
-        if (parsedMarkets.length == files.length) {
+        if ((parsedMarkets.length + filesSkipped) == files.length) {
           debugPrint("Read it all");
           _loadedMarkets(parsedMarkets);
         }
