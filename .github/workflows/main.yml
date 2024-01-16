@@ -25,7 +25,7 @@ jobs:
         run: flutter build windows
 
       - name: Move folder
-        run: mv .\build\windows\runner\Release .\dayz_configurator_gui_tool
+        run: mv .\build\windows\x64\runner\Release .\dayz_configurator_gui_tool
 
       - name: Compress
         run: Compress-Archive -Path dayz_configurator_gui_tool/* -Destination dayz_configurator_gui_tool.zip
