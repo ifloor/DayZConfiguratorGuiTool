@@ -1,4 +1,5 @@
 import 'package:dayz_configurator_gui_tool/utils/deserialization_utils.dart';
+import 'package:flutter/cupertino.dart';
 
 class ProfilesMarketItem {
   String ClassName;
@@ -50,7 +51,12 @@ class ProfilesMarketItem {
     List<ProfilesMarketItem> parsedItems = [];
 
     for (var json in jsons) {
-      parsedItems.add(ProfilesMarketItem.fromJson(json));
+      try {
+        parsedItems.add(ProfilesMarketItem.fromJson(json));
+      } catch (error) {
+        debugPrint('Error parsing ProfilesMarketItem: $error\nFor json: ${json.toString()}');
+        rethrow;
+      }
     }
 
     return parsedItems;
